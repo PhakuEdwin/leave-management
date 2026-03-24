@@ -1,0 +1,4 @@
+node_modules/
+dist/
+leave_management.db
+.env

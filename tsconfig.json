@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["client/src/*"],
+      "@server/*": ["server/*"]
+    },
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": ["server/**/*.ts", "client/src/**/*.ts", "client/src/**/*.tsx", "shared/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
