@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { trpc } from '../trpc';
 
 export default function ManageStaff() {
@@ -9,12 +9,24 @@ export default function ManageStaff() {
     role: 'staff' as 'admin' | 'staff', leaveBalance: 21, employeeTitle: '',
   });
 
+  const [showNewTitle, setShowNewTitle] = useState(false);
+  const [newTitleName, setNewTitleName] = useState('');
+  const newTitleRef = useRef<HTMLInputElement>(null);
+
   const utils = trpc.useUtils();
   const staff = trpc.user.list.useQuery();
   const jobRoles = trpc.jobRole.list.useQuery();
   const createMutation = trpc.user.create.useMutation({ onSuccess: () => { utils.user.list.invalidate(); resetForm(); } });
   const updateMutation = trpc.user.update.useMutation({ onSuccess: () => { utils.user.list.invalidate(); resetForm(); } });
   const deleteMutation = trpc.user.delete.useMutation({ onSuccess: () => utils.user.list.invalidate() });
+  const createJobTitle = trpc.jobRole.create.useMutation({
+    onSuccess: (_data, variables) => {
+      utils.jobRole.list.invalidate();
+      setForm(f => ({ ...f, employeeTitle: variables.name }));
+      setShowNewTitle(false);
+      setNewTitleName('');
+    },
+  });
 
   const resetForm = () => {
     setShowForm(false);
@@ -128,16 +140,48 @@ export default function ManageStaff() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Job Title</label>
-              <select
-                value={form.employeeTitle}
-                onChange={e => setForm(f => ({ ...f, employeeTitle: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">-- Select Job Title --</option>
-                {(jobRoles.data as any[] || []).map((r: any) => (
-                  <option key={r.id} value={r.name}>{r.name}</option>
-                ))}
-              </select>
+              {showNewTitle ? (
+                <div className="flex gap-2">
+                  <input
+                    ref={newTitleRef}
+                    type="text"
+                    value={newTitleName}
+                    onChange={e => setNewTitleName(e.target.value)}
+                    placeholder="Enter new job title"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                    autoFocus
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); if (newTitleName.trim()) createJobTitle.mutate({ name: newTitleName.trim() }); } }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => { if (newTitleName.trim()) createJobTitle.mutate({ name: newTitleName.trim() }); }}
+                    className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm"
+                  >Save</button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowNewTitle(false); setNewTitleName(''); }}
+                    className="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm"
+                  >Cancel</button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <select
+                    value={form.employeeTitle}
+                    onChange={e => setForm(f => ({ ...f, employeeTitle: e.target.value }))}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">-- Select Job Title --</option>
+                    {(jobRoles.data as any[] || []).map((r: any) => (
+                      <option key={r.id} value={r.name}>{r.name}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewTitle(true)}
+                    className="px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm whitespace-nowrap"
+                  >+ New</button>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Leave Balance (days)</label>

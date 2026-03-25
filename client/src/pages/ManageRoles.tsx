@@ -46,7 +46,7 @@ export default function ManageRoles() {
   };
 
   const handleDelete = (id: number, roleName: string) => {
-    if (confirm(`Delete role "${roleName}"?`)) {
+    if (confirm(`Delete job title "${roleName}"?`)) {
       deleteMutation.mutate({ id });
     }
   };
@@ -54,22 +54,22 @@ export default function ManageRoles() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Manage Job Roles</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Manage Job Titles</h1>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors"
         >
-          + Add Role
+          + Add Job Title
         </button>
       </div>
 
       {showForm && (
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">{editId ? 'Edit' : 'Add'} Job Role</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">{editId ? 'Edit' : 'Add'} Job Title</h2>
           {error && <div className="mb-3 p-2 bg-red-50 text-red-600 rounded text-sm">{error}</div>}
           <form onSubmit={handleSubmit} className="flex gap-3 items-end">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-600 mb-1">Role Name</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Title Name</label>
               <input
                 type="text"
                 value={name}
@@ -93,13 +93,13 @@ export default function ManageRoles() {
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Role Name</th>
+              <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Title Name</th>
               <th className="text-right px-4 py-3 text-sm font-semibold text-gray-600">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {(roles.data as any[] || []).length === 0 ? (
-              <tr><td colSpan={2} className="px-4 py-8 text-center text-gray-400">No job roles yet. Add one to get started.</td></tr>
+              <tr><td colSpan={2} className="px-4 py-8 text-center text-gray-400">No job titles yet. Add one to get started.</td></tr>
             ) : (
               (roles.data as any[] || []).map((role: any) => (
                 <tr key={role.id} className="hover:bg-gray-50">

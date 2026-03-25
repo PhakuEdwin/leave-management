@@ -51,7 +51,7 @@ function NavBar() {
             {navLink('/calendar', 'Calendar')}
             {isAdmin && navLink('/admin/requests', 'Requests', pendingCount.data)}
             {isAdmin && navLink('/admin/staff', 'Staff')}
-            {isAdmin && navLink('/admin/roles', 'Roles')}
+            {isAdmin && navLink('/admin/roles', 'Job Titles')}
           </div>
           <div className="flex items-center gap-3">
             <span className="text-blue-200 text-sm hidden md:block">
