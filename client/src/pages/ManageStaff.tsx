@@ -5,7 +5,7 @@ export default function ManageStaff() {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({
-    username: '', password: '', firstName: '', lastName: '',
+    username: '', password: '', firstName: '', lastName: '', email: '',
     role: 'staff' as 'admin' | 'staff', leaveBalance: 21, employeeTitle: '',
   });
 
@@ -19,12 +19,12 @@ export default function ManageStaff() {
   const resetForm = () => {
     setShowForm(false);
     setEditId(null);
-    setForm({ username: '', password: '', firstName: '', lastName: '', role: 'staff', leaveBalance: 21, employeeTitle: '' });
+    setForm({ username: '', password: '', firstName: '', lastName: '', email: '', role: 'staff', leaveBalance: 21, employeeTitle: '' });
   };
 
   const startEdit = (u: any) => {
     setEditId(u.id);
-    setForm({ username: u.username, password: '', firstName: u.firstName, lastName: u.lastName, role: u.role, leaveBalance: u.leaveBalance, employeeTitle: u.employeeTitle || '' });
+    setForm({ username: u.username, password: '', firstName: u.firstName, lastName: u.lastName, email: u.email || '', role: u.role, leaveBalance: u.leaveBalance, employeeTitle: u.employeeTitle || '' });
     setShowForm(true);
   };
 
@@ -32,9 +32,9 @@ export default function ManageStaff() {
     e.preventDefault();
     if (editId) {
       const { username: _u, ...rest } = form;
-      await updateMutation.mutateAsync({ id: editId, ...rest, password: rest.password || undefined, employeeTitle: rest.employeeTitle });
+      await updateMutation.mutateAsync({ id: editId, ...rest, password: rest.password || undefined });
     } else {
-      await createMutation.mutateAsync({ ...form, employeeTitle: form.employeeTitle });
+      await createMutation.mutateAsync(form);
     }
   };
 
@@ -104,6 +104,17 @@ export default function ManageStaff() {
                 required
               />
             </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-600 mb-1">Email <span className="text-red-500">*</span></label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="staff@example.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Role</label>
               <select
@@ -156,6 +167,7 @@ export default function ManageStaff() {
             <tr>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Name</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Username</th>
+              <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Email</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Job Title</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Role</th>
               <th className="text-center px-4 py-3 text-sm font-semibold text-gray-600">Leave Balance</th>
@@ -169,6 +181,7 @@ export default function ManageStaff() {
                   {u.firstName} {u.lastName}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-600">{u.username}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{u.email || '-'}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{u.employeeTitle || '-'}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${

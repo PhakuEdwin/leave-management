@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { trpc } from '../trpc';
 
 const statusColors: Record<string, string> = {
@@ -10,12 +11,32 @@ const statusColors: Record<string, string> = {
 const statusTabs = ['pending', 'approved', 'declined', 'all'] as const;
 
 export default function AdminRequests() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState<typeof statusTabs[number]>('pending');
   const [declineId, setDeclineId] = useState<number | null>(null);
   const [declineReason, setDeclineReason] = useState('');
+  const [highlightId, setHighlightId] = useState<number | null>(null);
+  const highlightRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id) {
+      setHighlightId(parseInt(id));
+      setTab('pending');
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
 
   const utils = trpc.useUtils();
   const requests = trpc.leave.all.useQuery({ status: tab });
+
+  useEffect(() => {
+    if (highlightId && highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const timer = setTimeout(() => setHighlightId(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightId, requests.data]);
   const processMutation = trpc.leave.process.useMutation({
     onSuccess: () => {
       utils.leave.all.invalidate();
@@ -65,7 +86,11 @@ export default function AdminRequests() {
           </div>
         ) : (
           (requests.data as any[]).map((req: any) => (
-            <div key={req.id} className={`bg-white rounded-xl shadow-sm border-l-4 ${statusColors[req.status]} overflow-hidden`}>
+            <div
+              key={req.id}
+              ref={highlightId === req.id ? highlightRef : undefined}
+              className={`bg-white rounded-xl shadow-sm border-l-4 ${statusColors[req.status]} overflow-hidden transition-all ${highlightId === req.id ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+            >
               <div className="p-5">
                 <div className="flex items-start justify-between">
                   <div>

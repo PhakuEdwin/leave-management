@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { router, publicProcedure, protectedProcedure, adminProcedure } from './trpc';
 import { login, hashPassword } from './auth';
 import db from './db';
+import { sendLeaveRequestToAdmin, sendLeaveDecisionToStaff } from './email';
 
 const authRouter = router({
   login: publicProcedure
@@ -13,7 +14,7 @@ const authRouter = router({
     }),
 
   me: protectedProcedure.query(({ ctx }) => {
-    const user = db.prepare('SELECT id, username, firstName, lastName, preferredName, employeeTitle, role, leaveBalance FROM users WHERE id = ?').get(ctx.user.id) as any;
+    const user = db.prepare('SELECT id, username, firstName, lastName, preferredName, employeeTitle, email, role, leaveBalance FROM users WHERE id = ?').get(ctx.user.id) as any;
     return user;
   }),
 });
@@ -41,6 +42,19 @@ const leaveRouter = router({
         INSERT INTO leave_requests (userId, leaveType, startDate, endDate, totalDays, reason)
         VALUES (?, ?, ?, ?, ?, ?)
       `).run(ctx.user.id, input.leaveType, input.startDate, input.endDate, input.totalDays, input.reason || '');
+
+      // Send email to admin
+      const staffUser = db.prepare('SELECT firstName, lastName, email FROM users WHERE id = ?').get(ctx.user.id) as any;
+      sendLeaveRequestToAdmin({
+        id: result.lastInsertRowid,
+        staffName: `${staffUser.firstName} ${staffUser.lastName}`,
+        staffEmail: staffUser.email,
+        leaveType: input.leaveType,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        totalDays: input.totalDays,
+        reason: input.reason || '',
+      }).catch(() => {});
 
       return { id: result.lastInsertRowid };
     }),
@@ -114,6 +128,21 @@ const leaveRouter = router({
           .run(request.totalDays, request.userId);
       }
 
+      // Send decision email to staff
+      const staffUser = db.prepare('SELECT firstName, lastName, email FROM users WHERE id = ?').get(request.userId) as any;
+      const adminUser = db.prepare('SELECT firstName, lastName FROM users WHERE id = ?').get(ctx.user.id) as any;
+      sendLeaveDecisionToStaff({
+        staffName: `${staffUser.firstName} ${staffUser.lastName}`,
+        staffEmail: staffUser.email,
+        leaveType: request.leaveType,
+        startDate: request.startDate,
+        endDate: request.endDate,
+        totalDays: request.totalDays,
+        status: input.status,
+        declineReason: input.declineReason,
+        processedByName: `${adminUser.firstName} ${adminUser.lastName}`,
+      }).catch(() => {});
+
       return { success: true };
     }),
 
@@ -151,7 +180,7 @@ const leaveRouter = router({
 const userRouter = router({
   // List all staff (admin)
   list: adminProcedure.query(() => {
-    return db.prepare('SELECT id, username, firstName, lastName, preferredName, employeeTitle, role, leaveBalance, createdAt FROM users ORDER BY firstName').all();
+    return db.prepare('SELECT id, username, firstName, lastName, preferredName, employeeTitle, email, role, leaveBalance, createdAt FROM users ORDER BY firstName').all();
   }),
 
   // Create staff member (admin)
@@ -161,6 +190,7 @@ const userRouter = router({
       password: z.string().min(4),
       firstName: z.string(),
       lastName: z.string(),
+      email: z.string().email(),
       preferredName: z.string().optional(),
       employeeTitle: z.string().optional(),
       role: z.enum(['admin', 'staff']).optional(),
@@ -172,11 +202,11 @@ const userRouter = router({
 
       const hashed = hashPassword(input.password);
       const result = db.prepare(`
-        INSERT INTO users (username, password, firstName, lastName, preferredName, employeeTitle, role, leaveBalance)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (username, password, firstName, lastName, email, preferredName, employeeTitle, role, leaveBalance)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         input.username, hashed, input.firstName, input.lastName,
-        input.preferredName || '', input.employeeTitle || '',
+        input.email, input.preferredName || '', input.employeeTitle || '',
         input.role || 'staff', input.leaveBalance ?? 21
       );
 
@@ -189,6 +219,7 @@ const userRouter = router({
       id: z.number(),
       firstName: z.string().optional(),
       lastName: z.string().optional(),
+      email: z.string().email().optional(),
       preferredName: z.string().optional(),
       employeeTitle: z.string().optional(),
       role: z.enum(['admin', 'staff']).optional(),

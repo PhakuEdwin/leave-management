@@ -33,6 +33,7 @@ class DatabaseWrapper {
         password TEXT NOT NULL,
         firstName TEXT NOT NULL,
         lastName TEXT NOT NULL,
+        email TEXT NOT NULL DEFAULT '',
         employeeTitle TEXT DEFAULT '',
         preferredName TEXT DEFAULT '',
         role TEXT NOT NULL DEFAULT 'staff' CHECK(role IN ('admin', 'staff')),
