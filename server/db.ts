@@ -62,6 +62,14 @@ class DatabaseWrapper {
       )
     `);
 
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS job_roles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `);
+
     // Seed default admin if no users exist
     const countResult = this.prepare('SELECT COUNT(*) as count FROM users').get() as any;
     if (countResult.count === 0) {

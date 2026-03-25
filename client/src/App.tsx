@@ -6,6 +6,7 @@ import RequestLeave from './pages/RequestLeave';
 import Calendar from './pages/Calendar';
 import AdminRequests from './pages/AdminRequests';
 import ManageStaff from './pages/ManageStaff';
+import ManageRoles from './pages/ManageRoles';
 import { trpc } from './trpc';
 
 function NavBar() {
@@ -50,6 +51,7 @@ function NavBar() {
             {navLink('/calendar', 'Calendar')}
             {isAdmin && navLink('/admin/requests', 'Requests', pendingCount.data)}
             {isAdmin && navLink('/admin/staff', 'Staff')}
+            {isAdmin && navLink('/admin/roles', 'Roles')}
           </div>
           <div className="flex items-center gap-3">
             <span className="text-blue-200 text-sm hidden md:block">
@@ -94,6 +96,7 @@ export default function App() {
             <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
             <Route path="/admin/requests" element={<AdminRoute><AdminRequests /></AdminRoute>} />
             <Route path="/admin/staff" element={<AdminRoute><ManageStaff /></AdminRoute>} />
+            <Route path="/admin/roles" element={<AdminRoute><ManageRoles /></AdminRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

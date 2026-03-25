@@ -232,10 +232,42 @@ const userRouter = router({
     }),
 });
 
+const jobRoleRouter = router({
+  list: protectedProcedure.query(() => {
+    return db.prepare('SELECT * FROM job_roles ORDER BY name').all();
+  }),
+
+  create: adminProcedure
+    .input(z.object({ name: z.string().min(1) }))
+    .mutation(({ input }) => {
+      const existing = db.prepare('SELECT id FROM job_roles WHERE name = ?').get(input.name);
+      if (existing) throw new Error('Job role already exists');
+      const result = db.prepare('INSERT INTO job_roles (name) VALUES (?)').run(input.name);
+      return { id: result.lastInsertRowid };
+    }),
+
+  update: adminProcedure
+    .input(z.object({ id: z.number(), name: z.string().min(1) }))
+    .mutation(({ input }) => {
+      const existing = db.prepare('SELECT id FROM job_roles WHERE name = ? AND id != ?').get(input.name, input.id);
+      if (existing) throw new Error('Job role name already exists');
+      db.prepare('UPDATE job_roles SET name = ? WHERE id = ?').run(input.name, input.id);
+      return { success: true };
+    }),
+
+  delete: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(({ input }) => {
+      db.prepare('DELETE FROM job_roles WHERE id = ?').run(input.id);
+      return { success: true };
+    }),
+});
+
 export const appRouter = router({
   auth: authRouter,
   leave: leaveRouter,
   user: userRouter,
+  jobRole: jobRoleRouter,
 });
 
 export type AppRouter = typeof appRouter;

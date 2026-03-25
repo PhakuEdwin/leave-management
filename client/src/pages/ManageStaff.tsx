@@ -6,11 +6,12 @@ export default function ManageStaff() {
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({
     username: '', password: '', firstName: '', lastName: '',
-    role: 'staff' as 'admin' | 'staff', leaveBalance: 21,
+    role: 'staff' as 'admin' | 'staff', leaveBalance: 21, employeeTitle: '',
   });
 
   const utils = trpc.useUtils();
   const staff = trpc.user.list.useQuery();
+  const jobRoles = trpc.jobRole.list.useQuery();
   const createMutation = trpc.user.create.useMutation({ onSuccess: () => { utils.user.list.invalidate(); resetForm(); } });
   const updateMutation = trpc.user.update.useMutation({ onSuccess: () => { utils.user.list.invalidate(); resetForm(); } });
   const deleteMutation = trpc.user.delete.useMutation({ onSuccess: () => utils.user.list.invalidate() });
@@ -18,12 +19,12 @@ export default function ManageStaff() {
   const resetForm = () => {
     setShowForm(false);
     setEditId(null);
-    setForm({ username: '', password: '', firstName: '', lastName: '', role: 'staff', leaveBalance: 21 });
+    setForm({ username: '', password: '', firstName: '', lastName: '', role: 'staff', leaveBalance: 21, employeeTitle: '' });
   };
 
   const startEdit = (u: any) => {
     setEditId(u.id);
-    setForm({ username: u.username, password: '', firstName: u.firstName, lastName: u.lastName, role: u.role, leaveBalance: u.leaveBalance });
+    setForm({ username: u.username, password: '', firstName: u.firstName, lastName: u.lastName, role: u.role, leaveBalance: u.leaveBalance, employeeTitle: u.employeeTitle || '' });
     setShowForm(true);
   };
 
@@ -31,9 +32,9 @@ export default function ManageStaff() {
     e.preventDefault();
     if (editId) {
       const { username: _u, ...rest } = form;
-      await updateMutation.mutateAsync({ id: editId, ...rest, password: rest.password || undefined });
+      await updateMutation.mutateAsync({ id: editId, ...rest, password: rest.password || undefined, employeeTitle: rest.employeeTitle });
     } else {
-      await createMutation.mutateAsync(form);
+      await createMutation.mutateAsync({ ...form, employeeTitle: form.employeeTitle });
     }
   };
 
@@ -115,6 +116,19 @@ export default function ManageStaff() {
               </select>
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Job Title</label>
+              <select
+                value={form.employeeTitle}
+                onChange={e => setForm(f => ({ ...f, employeeTitle: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">-- Select Job Title --</option>
+                {(jobRoles.data as any[] || []).map((r: any) => (
+                  <option key={r.id} value={r.name}>{r.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Leave Balance (days)</label>
               <input
                 type="number"
@@ -142,6 +156,7 @@ export default function ManageStaff() {
             <tr>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Name</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Username</th>
+              <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Job Title</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Role</th>
               <th className="text-center px-4 py-3 text-sm font-semibold text-gray-600">Leave Balance</th>
               <th className="text-right px-4 py-3 text-sm font-semibold text-gray-600">Actions</th>
@@ -154,6 +169,7 @@ export default function ManageStaff() {
                   {u.firstName} {u.lastName}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-600">{u.username}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{u.employeeTitle || '-'}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                     u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'
