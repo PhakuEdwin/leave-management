@@ -1,10 +1,10 @@
 import nodemailer from 'nodemailer';
 
-const SMTP_USER = 'EdwinPhaku@Gmail.com';
-const SMTP_PASS = 'poet nhdw oywe woyb';
-const ADMIN_EMAIL = 'drpmalatji@gmail.com';
-const ADMIN_NAME = 'Phaku Malatji';
-const APP_URL = 'https://humeleave.co.za';
+const SMTP_USER = process.env.SMTP_USER || '';
+const SMTP_PASS = process.env.SMTP_PASS || '';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+const ADMIN_NAME = process.env.ADMIN_NAME || 'Admin';
+const APP_URL = process.env.APP_URL || 'https://humeleave.co.za';
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
