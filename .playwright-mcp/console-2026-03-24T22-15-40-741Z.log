@@ -1,0 +1,11 @@
+[    2993ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://hpanel.hostinger.com/websites:0
+[    3019ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/auth/api/external/v1/profile?gaid=GA1.1.1183080159.1774376681:0
+[    3114ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/horizons-backend/api/websites?gaid=GA1.1.1183080159.1774376681:0
+[    3116ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/resources/api/v2/resources?state%5B%5D=created&state%5B%5D=pending_setup&state%5B%5D=activating&state%5B%5D=active&state%5B%5D=updating&state%5B%5D=suspending&state%5B%5D=suspended&state%5B%5D=unsuspending&state%5B%5D=deleting&state%5B%5D=deleted&state%5B%5D=completed&state%5B%5D=canceled&state%5B%5D=failed&gaid=GA1.1.1183080159.1774376681:0
+[    3119ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/wh-api/api/v1/orders?websitesPerPage=10&perPage=100&gaid=GA1.1.1183080159.1774376681:0
+[    3121ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/billing/api/v1/customer/invoices?status=payment_due&gaid=GA1.1.1183080159.1774376681:0
+[    3145ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/billing/api/v1/customer/subscriptions-with-scheduled-changes?per_page=100&gaid=GA1.1.1183080159.1774376681:0
+[    9020ms] [WARNING] [TikTok Pixel] - Missing email and phone number
+Issue: Email and phone number info isn't being received. This information is required for Complete Payment events.
+Suggestion: Improve your email and phone coverage. This allows you to attribute more conversions and reach more people with your ads. See https://ads.tiktok.com/marketing_api/docs?rid=5ipocbxyw8v&id=1701890972946433 for more information. @ https://hpanel.hostinger.com/assets/chunk/vendor.CagjMsn5.js:245
+[   10323ms] [ERROR] Attestation check for Attribution Reporting on https://www.facebook.com failed. @ https://hpanel.hostinger.com/websites:0

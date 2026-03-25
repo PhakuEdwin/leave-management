@@ -4,9 +4,10 @@ import path from 'path';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { appRouter } from './router';
 import { createContext } from './trpc';
+import { db } from './db';
 
 const app = express();
-const PORT = 3003;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3003;
 
 app.use(cors());
 app.use(express.json());
@@ -26,6 +27,12 @@ if (require('fs').existsSync(clientPath)) {
   });
 }
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Leave Management System running on http://localhost:${PORT}`);
+// Initialize DB then start server
+db.init().then(() => {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Leave Management System running on http://localhost:${PORT}`);
+  });
+}).catch((err) => {
+  console.error('Failed to initialize database:', err);
+  process.exit(1);
 });

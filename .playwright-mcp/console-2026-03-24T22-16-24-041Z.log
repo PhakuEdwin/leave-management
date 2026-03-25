@@ -1,0 +1,3 @@
+[    1905ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://hpanel.hostinger.com/websites/humeleave.co.za/advanced/git:0
+[ 7990604ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/communication/api/external/v1/auth/token/generate?gaid=GA1.1.1183080159.1774376681:0
+[ 7990615ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/communication/api/external/v1/auth/token/generate?gaid=GA1.1.1183080159.1774376681:0
